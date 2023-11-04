@@ -5,6 +5,9 @@ const App = () => {
   const [persons, setPersons] = useState([{name: 'Arto Hellas', id: 0, phoneNumber: '202-x44-z453'}])
   const [newName, setNewName] = useState('')
   const [newPhnNumber, setnewPhnNumber] = useState('')
+  const [searchName, setSearchName] = useState('')
+  
+  const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(searchName.toLowerCase()))
 
   const addName = (event) => {
     event.preventDefault()
@@ -27,14 +30,21 @@ const App = () => {
   const handleNumberChange = (event) => {
     setnewPhnNumber(event.target.value)
   }
+  const handleSearchName = (event) => {
+    setSearchName(event.target.value)
+  }
 
 
   return(
     <div>
       <h2>PhoneBook</h2>
+      <div>
+          Filter name with: <input type='text' value={searchName} onChange={handleSearchName}/>
+      </div>
+      <h2>Add New Record</h2>
       <form onSubmit={addName}>
         <div>
-          name: <input type='text' value={newName} onChange={handleNameChange}/>
+          Name: <input type='text' value={newName} onChange={handleNameChange}/>
         </div>
         <div>
           Phone Number: <input type='text' value={newPhnNumber} onChange={handleNumberChange}/>
@@ -43,10 +53,10 @@ const App = () => {
           <button type="submit">Add</button>
         </div>
       </form>
-      <h2>Numbers</h2>
-      <ul>
-        {persons.map(person => <Person key={person.id} person={person}/>)}
-      </ul>
+      <h2>Phone Records</h2>
+      <div>
+        {filteredPersons.map(person => <Person key={person.id} person={person}/>)}
+      </div>
     </div>
   )
 }
