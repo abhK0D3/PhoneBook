@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DisplayRecord from './components/DisplayRecord'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import axios from 'axios'
 
 const App = () => {
-  const [persons, setPersons] = useState([{name: 'Arto Hellas', id: 0, phoneNumber: '202-x44-z453'}])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newPhnNumber, setnewPhnNumber] = useState('')
   const [searchName, setSearchName] = useState('')
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log(response.data)
+        setPersons(response.data)
+      })
+  }, [])
   
   const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(searchName.toLowerCase()))
 
@@ -18,7 +28,7 @@ const App = () => {
       const personObject = {
         name: newName,
         id: persons.length + 1,
-        phoneNumber: newPhnNumber
+        number: newPhnNumber
       }
       setPersons(persons.concat(personObject))
       setNewName('')
