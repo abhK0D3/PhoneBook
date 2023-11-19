@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import DisplayRecord from './components/DisplayRecord'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
-import axios from 'axios'
+import personService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -11,11 +11,11 @@ const App = () => {
   const [searchName, setSearchName] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log(response.data)
-        setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialResponse => {
+        console.log(initialResponse)
+        setPersons(initialResponse)
       })
   }, [])
   
@@ -27,14 +27,19 @@ const App = () => {
     if (!isNotUnique){
       const personObject = {
         name: newName,
-        id: persons.length + 1,
         number: newPhnNumber
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
+      personService
+        .addRecord(personObject)
+        .then(returnedResponse => {
+          console.log(returnedResponse)
+          setPersons(persons.concat(returnedResponse))
+          setNewName('')
+        })
     } else{
       window.alert(`${newName} is already on the PhoneBook`)
     }
+
   }
   const handleNameChange = (event) => {
     setNewName(event.target.value)
