@@ -24,6 +24,7 @@ const App = () => {
   const addName = (event) => {
     event.preventDefault()
     const isNotUnique = persons.some(person => person.name === newName)
+    const hasSameNumber = persons.some(person => person.number === newPhnNumber)
     if (!isNotUnique){
       const personObject = {
         name: newName,
@@ -35,8 +36,24 @@ const App = () => {
           console.log(returnedResponse)
           setPersons(persons.concat(returnedResponse))
           setNewName('')
+          setnewPhnNumber('')
         })
-    } else{
+    } else if (isNotUnique && !hasSameNumber){
+      const personToUpdate = persons.find(person => person.name === newName)
+      console.log(personToUpdate)
+      const changedNumber = {...personToUpdate, number: newPhnNumber}
+      if (window.confirm(`${personToUpdate.name} is already on the Phonebook. Would you like to Replace existing number?`)){
+        personService
+          .updateNumber(personToUpdate.id, changedNumber)
+          .then(returnedResponse => {
+            console.log(returnedResponse)
+            setPersons(persons.map(person => person.id !== personToUpdate.id ? person : returnedResponse))
+            setNewName('')
+            setnewPhnNumber('')
+          })
+      }
+         
+    } else {  
       window.alert(`${newName} is already on the PhoneBook`)
     }
 
@@ -51,6 +68,20 @@ const App = () => {
     setSearchName(event.target.value)
   }
 
+  const removePerson = (id) => {
+    const personToDelete = filteredPersons.filter(person => person.id === id)
+    const personName = personToDelete[0].name
+    const personId = personToDelete[0].id
+    if (window.confirm(`Are you sure to delete ${personName} from the Phone Record?`)){
+      personService
+        .removeRecord(personId)
+        .then(removedResponse => {
+          console.log(removedResponse)
+          setPersons(persons.filter(person => person.id !== personId))
+        })
+    }
+  }
+
 
   return(
     <div>
@@ -63,7 +94,7 @@ const App = () => {
       <PersonForm onSubmit = {addName} nameVal={newName} nameChange={handleNameChange} phnNumberVal={newPhnNumber} phnNumberChange={handleNumberChange}/>
       
       <h2>Phone Records</h2>
-      <DisplayRecord personRecords={filteredPersons}/>
+      <DisplayRecord personRecords={filteredPersons} removePerson={removePerson}/>
     </div>
   )
 }
