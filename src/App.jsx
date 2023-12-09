@@ -3,12 +3,14 @@ import DisplayRecord from './components/DisplayRecord'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newPhnNumber, setnewPhnNumber] = useState('')
   const [searchName, setSearchName] = useState('')
+  const [errorMsg, setErroMsg] = useState(null)
 
   useEffect(() => {
     personService
@@ -37,6 +39,12 @@ const App = () => {
           setPersons(persons.concat(returnedResponse))
           setNewName('')
           setnewPhnNumber('')
+          setErroMsg(`Added ${personObject.name}`)
+          setTimeout(() => {setErroMsg(null)}, 5000)
+        })
+        .catch(error => {
+          setErroMsg(`Can't Add ${personObject.name}`)
+          setTimeout(() => {setErroMsg(null)}, 5000)
         })
     } else if (isNotUnique && !hasSameNumber){
       const personToUpdate = persons.find(person => person.name === newName)
@@ -50,6 +58,12 @@ const App = () => {
             setPersons(persons.map(person => person.id !== personToUpdate.id ? person : returnedResponse))
             setNewName('')
             setnewPhnNumber('')
+            setErroMsg(`Updated Phone Number of ${personObject.name}`)
+            setTimeout(() => {setErroMsg(null)}, 5000)
+          })
+          .catch(error => {
+            setErroMsg(`Records of ${personToUpdate.name} already removed from server`)
+            setTimeout(() => {setErroMsg(null)}, 5000)
           })
       }
          
@@ -85,6 +99,7 @@ const App = () => {
 
   return(
     <div>
+      <Notification message={errorMsg} />
       <h2>PhoneBook</h2>
       <Filter value={searchName} onChange={handleSearchName}/>
       {/* <div>
